@@ -7,32 +7,41 @@ just by looking cheaper at the till.
 No build step, no dependencies, no framework, no network calls at runtime.
 Data lives in the browser's `localStorage` on one device and is never uploaded.
 
+## One source of truth
+
+**`price-tracker.html` is the app.** It is the only file you edit.
+Everything else that runs is generated from it by `build.mjs`:
+
+```
+price-tracker.html ──┬──> deploy/index.html  (+ sw.js, manifest, icons, fonts)
+     assets/         ──┘
+                     └──> vault-mart.html    (standalone, everything inlined)
+```
+
+`deploy/` and `vault-mart.html` are **git-ignored and never committed** — Vercel
+runs the build on every push, so a stale deployed copy is impossible.
+
 ## Files
 
 | Path | What it is |
 |---|---|
 | `price-tracker.html` | **The app.** The only file you edit. |
-| `deploy/` | What gets deployed. `index.html` is a copy of the app, plus the PWA files and self-hosted fonts. |
-| `vault-mart.html` | Standalone build — icon and manifest inlined, works from `file://` with nothing beside it. |
+| `assets/` | Source icons and the self-hosted IBM Plex subsets. |
+| `build.mjs` | Produces `deploy/` and `vault-mart.html`. Syntax-checks the app and derives the service worker's precache list from the files actually present. |
+| `vercel.json` | Tells Vercel to run the build and serve `deploy/`. |
 | `preview-ultra.html` | Renders the app in a Galaxy Ultra-sized frame for desktop review. |
 | `ENHANCEMENT-PLAN.md` | The design review and phased spec this was built from. |
 | `UI-TEST-PLAN.md` | 40-case manual/agent UI test plan. |
 
-`deploy/index.html` and `vault-mart.html` are **generated from** `price-tracker.html`.
-Never edit them directly — edit the app and rebuild (see below).
-
-## Deploying
+## Building and deploying
 
 ```bash
-npx vercel --prod --cwd ./deploy
+node build.mjs      # local build → deploy/ and vault-mart.html
+git push            # Vercel builds and deploys automatically
 ```
 
-Or drag the `deploy` folder onto Vercel and promote the deployment.
-
-## Rebuilding the generated files
-
-After editing `price-tracker.html`, copy it to `deploy/index.html`, and rebuild
-`vault-mart.html` with the icon and manifest inlined as data URIs.
+The build fails loudly if the app's script has a syntax error or if the
+standalone file still references an external file, so neither can be shipped.
 
 ## Tests
 
