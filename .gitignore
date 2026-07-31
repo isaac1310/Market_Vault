@@ -1,0 +1,12 @@
+# Source material and archives — large, and not needed to build or run the app
+*.zip
+*.docx
+
+# Superseded copies, kept locally only
+retired/
+
+# Vercel CLI link data
+.vercel/
+
+# OS noise
+.DS_Store

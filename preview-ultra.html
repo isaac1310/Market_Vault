@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VAULT-MART — תצוגת Galaxy Ultra</title>
+<style>
+  :root { --frame: #1b1b1e; --edge: #3a3a40; --page: #0d0d10; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--page); color: #cfcfd6;
+    font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+    display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 24px 12px 40px;
+  }
+  h1 { font-size: 16px; font-weight: 500; margin: 0; letter-spacing: .02em; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; }
+  button, select {
+    font: inherit; font-size: 13px; background: #232329; color: #e6e6ec;
+    border: 1px solid var(--edge); border-radius: 8px; padding: 8px 12px; min-height: 40px; cursor: pointer;
+  }
+  button:hover { background: #2c2c34; }
+  /* device shell — Galaxy S24 Ultra is 412x915 CSS px at DPR ~3.5 */
+  .device {
+    position: relative; background: var(--frame); border: 1px solid var(--edge);
+    border-radius: 38px; padding: 12px; box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    transform-origin: top center;
+  }
+  .screen {
+    position: relative; width: 412px; height: 915px; border-radius: 28px;
+    overflow: hidden; background: #000;
+  }
+  .screen iframe { width: 100%; height: 100%; border: 0; display: block; }
+  .notch {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 10px; border-radius: 50%; background: #0a0a0c;
+    border: 1px solid #26262c; z-index: 2; pointer-events: none;
+  }
+  .meta { font-size: 12px; color: #85858f; text-align: center; max-width: 460px; line-height: 1.6; }
+  .meta code { background: #232329; padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+  <h1>VAULT-MART · תצוגת Galaxy Ultra</h1>
+
+  <div class="bar">
+    <label for="size" style="font-size:13px">מכשיר</label>
+    <select id="size">
+      <option value="412x915">Galaxy S24 Ultra — 412 × 915</option>
+      <option value="384x854">Galaxy Ultra (טקסט גדול) — 384 × 854</option>
+      <option value="360x800">מסך צר — 360 × 800</option>
+      <option value="480x1000">מסך רחב — 480 × 1000</option>
+    </select>
+    <button id="zoomOut">− הקטן</button>
+    <span id="zoomLabel" style="font-size:13px;min-width:46px;text-align:center">100%</span>
+    <button id="zoomIn">+ הגדל</button>
+    <button id="reload">↻ רענן</button>
+    <button id="openNew">↗ פתח בכרטיסייה</button>
+  </div>
+
+  <div class="device" id="device">
+    <span class="notch"></span>
+    <div class="screen" id="screen">
+      <iframe id="app" src="./price-tracker.html" title="VAULT-MART"></iframe>
+    </div>
+  </div>
+
+  <p class="meta">
+    זו הדמיה בגודל אמיתי של שטח המסך (CSS pixels). היא לא משחזרת את צפיפות
+    הפיקסלים של המכשיר — לבדיקת חדות הגרפים והטקסט פתח את
+    <code>price-tracker.html</code> בטלפון עצמו.
+  </p>
+
+<script>
+"use strict";
+(function () {
+  var screenEl = document.getElementById("screen");
+  var device = document.getElementById("device");
+  var zoom = 1;
+
+  function applyZoom() {
+    device.style.transform = "scale(" + zoom + ")";
+    document.getElementById("zoomLabel").textContent = Math.round(zoom * 100) + "%";
+    /* keep the page from scrolling oddly when the frame shrinks */
+    device.style.marginBottom = (device.offsetHeight * (zoom - 1)) + "px";
+  }
+  function fitToWindow() {
+    var avail = window.innerHeight - 220;
+    var needed = screenEl.offsetHeight + 24;
+    zoom = Math.min(1, Math.max(0.4, avail / needed));
+    applyZoom();
+  }
+
+  document.getElementById("size").addEventListener("change", function (e) {
+    var parts = e.target.value.split("x");
+    screenEl.style.width = parts[0] + "px";
+    screenEl.style.height = parts[1] + "px";
+    fitToWindow();
+  });
+  document.getElementById("zoomIn").addEventListener("click", function () {
+    zoom = Math.min(1.5, zoom + 0.1); applyZoom();
+  });
+  document.getElementById("zoomOut").addEventListener("click", function () {
+    zoom = Math.max(0.3, zoom - 0.1); applyZoom();
+  });
+  document.getElementById("reload").addEventListener("click", function () {
+    var f = document.getElementById("app");
+    f.src = "./price-tracker.html?v=" + Date.now();
+  });
+  document.getElementById("openNew").addEventListener("click", function () {
+    window.open("./price-tracker.html", "_blank");
+  });
+
+  fitToWindow();
+  window.addEventListener("resize", fitToWindow);
+})();
+</script>
+</body>
+</html>
