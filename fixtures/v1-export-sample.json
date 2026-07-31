@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "imports": ["import_stick_fish_2026_07_08"],
+  "products": [
+    {
+      "id": "seed_p_diapers",
+      "name": "חיתולים מידה 3",
+      "category": "חיתולים",
+      "stores": [
+        { "id": "seed_s_d1", "storeName": "KSP", "note": "3 חבילות ב-60 (₪20 לחבילה)", "currentPrice": 20, "lastUpdated": "2026-07-02", "history": [{ "price": 20, "date": "2026-07-02" }] },
+        { "id": "seed_s_d5", "storeName": "קרפור", "note": "האגיז", "currentPrice": 29.9, "lastUpdated": "2026-07-02", "history": [{ "price": 29.9, "date": "2026-07-02" }] }
+      ]
+    },
+    {
+      "id": "seed_p_laundry",
+      "name": "קפסולות כביסה מקסימה",
+      "category": "כביסה",
+      "stores": [
+        { "id": "seed_s_l1", "storeName": "גודפארם", "note": "40 קפסולות", "currentPrice": 33.9, "lastUpdated": "2026-07-02", "history": [{ "price": 33.9, "date": "2026-07-02" }] },
+        { "id": "seed_s_l2", "storeName": "KSP", "note": "במבצע · מחיר רגיל ₪35", "currentPrice": 30, "lastUpdated": "2026-07-02", "history": [{ "price": 35, "date": "2026-06-20" }, { "price": 30, "date": "2026-07-02" }] }
+      ]
+    },
+    {
+      "id": "seed_p_ground",
+      "name": "טחון בקר",
+      "category": "בשר",
+      "stores": [
+        { "id": "seed_s_m9", "storeName": "רמי לוי", "note": "לקילו", "currentPrice": 64.9, "lastUpdated": "2026-07-08", "history": [{ "price": 64.9, "date": "2026-07-08" }] },
+        { "id": "seed_s_m10", "storeName": "סופרדוש", "note": "טרי · 2 ב-120 · רגיל 79.9 לקילו", "currentPrice": 60, "lastUpdated": "2026-07-08", "history": [{ "price": 60, "date": "2026-07-08" }] }
+      ]
+    }
+  ]
+}
