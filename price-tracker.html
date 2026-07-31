@@ -223,7 +223,7 @@ html[data-theme="hub"] .pill[aria-pressed="true"] {
 html[data-theme="hub"] .badge { border-radius: 999px; padding: 2px 9px; }
 html[data-theme="hub"] .badge--best { background: var(--green); border-color: var(--green); color: #fff; }
 html[data-theme="hub"] .badge--sale { background: #fdeeec; border-color: #f3c9c7; color: var(--rust); }
-html[data-theme="hub"] .badge--stale, html[data-theme="hub"] .badge--warn {
+html[data-theme="hub"] .badge--warn {
   background: #fdf1e2; border-color: #f0dcc0; color: #9a7440;
 }
 html[data-theme="hub"] .entry { border-bottom: 1px solid var(--line-soft); }
@@ -491,6 +491,10 @@ html[data-theme="wopr"] .btn:active { box-shadow: inset 0 2px 4px rgba(0,0,0,.8)
 
 /* ---------- forms ---------- */
 label { display: block; font-size: 12px; color: var(--amber-dim); margin-bottom: 4px; letter-spacing: .04em; }
+.picker { display: flex; gap: 8px; align-items: stretch; }
+.picker input { flex: 1; min-width: 0; }
+.picker .btn { flex: none; white-space: nowrap; }
+
 input, select, textarea {
   font: inherit; font-size: 15px; width: 100%; background: var(--bg);
   color: var(--amber-bright); border: 1px solid var(--line); border-radius: var(--radius);
@@ -554,10 +558,6 @@ html[data-theme="wopr"] .card::after { bottom: -1px; inset-inline-end: -1px; bor
 .entry__hero { font-size: 21px; font-weight: 700; color: var(--amber-bright); line-height: 1.15; }
 .entry__cap { font-size: 11px; color: var(--amber-dim); }
 .entry__cap--delta { color: var(--rust); }
-/* an old price is still shown, just never with the confidence of a fresh one */
-.entry--stale .entry__hero { color: var(--amber-dim); }
-.badge--stale { color: var(--amber-dim); }
-.stale-note { color: var(--rust); }
 .entry--best .entry__hero { color: var(--green-bright); }
 .entry--best .entry__store { color: var(--green-bright); }
 .entry__hero--muted { font-size: 17px; color: var(--amber-dim); font-weight: 600; }
@@ -725,8 +725,10 @@ try {
 <dialog id="productDlg"><form method="dialog" id="productForm">
   <div class="dlg__head" id="productDlgTitle">מוצר</div>
   <div class="dlg__body">
-    <div class="field"><label for="pName">שם המוצר</label><input id="pName" required maxlength="80"></div>
-    <div class="field"><label for="pCat">קטגוריה</label><input id="pCat" list="catList" maxlength="40"><datalist id="catList"></datalist></div>
+    <div class="field"><label for="pName">שם המוצר</label><input id="pName" autocomplete="off" required maxlength="80"></div>
+    <div class="field"><label for="pCat">קטגוריה</label>
+      <div class="picker"><input id="pCat" maxlength="40" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="ללא קטגוריה">
+      <button type="button" class="btn btn--sm" data-pick="cat">[ בחר ]</button></div></div>
     <div class="field"><label for="pUnit">יחידת מידה להשוואה</label><select id="pUnit">
       <option value="g">משקל — ₪ ל-100 גרם</option>
       <option value="kg">משקל — ₪ לקילו</option>
@@ -743,17 +745,19 @@ try {
 <dialog id="entryDlg"><form method="dialog" id="entryForm">
   <div class="dlg__head" id="entryDlgTitle">מחיר</div>
   <div class="dlg__body">
-    <div class="field"><label for="eStore">חנות</label><input id="eStore" list="storeList" required maxlength="60"><datalist id="storeList"></datalist></div>
+    <div class="field"><label for="eStore">חנות</label>
+      <div class="picker"><input id="eStore" required maxlength="60" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="שם החנות">
+      <button type="button" class="btn btn--sm" data-pick="store">[ בחר ]</button></div></div>
     <div class="grid3">
-      <div class="field"><label for="eQty">כמות אריזות</label><input id="eQty" type="number" min="0" step="any" inputmode="decimal" placeholder="4"></div>
-      <div class="field"><label for="eSize">גודל אריזה</label><input id="eSize" type="number" min="0" step="any" inputmode="decimal" placeholder="98"></div>
+      <div class="field"><label for="eQty">כמות אריזות</label><input id="eQty" autocomplete="off" type="number" min="0" step="any" inputmode="decimal" placeholder="4"></div>
+      <div class="field"><label for="eSize">גודל אריזה</label><input id="eSize" autocomplete="off" type="number" min="0" step="any" inputmode="decimal" placeholder="98"></div>
       <div class="field"><label for="eUnit">יחידה</label><select id="eUnit">
         <option value="g">גרם</option><option value="kg">ק״ג</option>
         <option value="ml">מ״ל</option><option value="l">ליטר</option>
         <option value="unit">יחידות</option>
       </select></div>
     </div>
-    <div class="field"><label for="ePrice">מחיר כולל ₪</label><input id="ePrice" type="number" min="0" step="0.01" inputmode="decimal" required></div>
+    <div class="field"><label for="ePrice">מחיר כולל ₪</label><input id="ePrice" autocomplete="off" type="number" min="0" step="0.01" inputmode="decimal" required></div>
     <div class="check"><input type="checkbox" id="eSale"><label for="eSale">מבצע</label></div>
     <div class="field"><label for="eDate">תאריך</label><input id="eDate" type="date" required></div>
     <div class="field"><label for="eNote">הערה</label><input id="eNote" maxlength="120"></div>
@@ -908,19 +912,14 @@ function todayISO() { var d = new Date(), p = function (x) { return String(x).pa
 var uidN = 0;
 function uid(p) { uidN++; return (p || "id") + "_" + Date.now().toString(36) + "_" + uidN; }
 /* ---------- price age ----------
-   A month-old price is not a fact about today. Rows past STALE_DAYS are shown
-   dimmed and labelled, and a stale winner carries a "re-check" flag, so the
-   app never presents an old number with the same confidence as a fresh one. */
-var STALE_DAYS = 21;
+   Dates read as "אתמול" / "לפני חודש" rather than 2026-07-02 — easier to judge
+   at a glance. No stale flagging: with most rows older than a few weeks, a
+   badge on nearly every row carried no information. */
 function ageDays(dateStr, today) {
   if (!dateStr) return null;
   var a = new Date(dateStr + "T00:00:00"), b = new Date((today || todayISO()) + "T00:00:00");
   if (isNaN(a) || isNaN(b)) return null;
   return Math.round((b - a) / 86400000);
-}
-function isStale(dateStr, today) {
-  var d = ageDays(dateStr, today);
-  return d != null && d > STALE_DAYS;
 }
 function ageLabel(dateStr, today) {
   var d = ageDays(dateStr, today);
@@ -1221,14 +1220,6 @@ function adoptBasis(product, snap) {
   });
   if (established) return;
   product.defaultUnit = snap.unit;
-}
-
-/* the winning row's date, only when that row is stale */
-function staleWinner(ranked) {
-  var win = ranked.rows.filter(function (x) { return x.isBest || x.isPackBest; })[0];
-  if (!win) return null;
-  var d = cur(win.entry).date;
-  return isStale(d) ? d : null;
 }
 
 /* bases a product can switch between, within its own dimension */
@@ -1541,7 +1532,7 @@ function productList() {
     html += '<div class="card__head"><div><div class="card__name">' + (p.needed ? "🛒 " : "▸ ") + esc(p.name) + '</div><div class="card__meta">' +
       esc(p.category || "ללא קטגוריה") + " · " +
       (r.fallback ? "השוואה: מחיר אריזה — לא מנורמל" : "השוואה " + esc(r.basis.label)) +
-      (staleWinner(r) ? ' · <span class="stale-note">המחיר הזול נבדק ' + esc(ageLabel(staleWinner(r))) + " — כדאי לוודא</span>" : "") + '</div></div>' +
+      '</div></div>' +
       '<div class="card__tools">' +
       (opts.length > 1 ? '<button class="icon-btn basis-btn" data-act="basis" data-p="' + esc(p.id) +
         '" title="שנה בסיס השוואה" aria-label="שנה בסיס השוואה">' + esc(r.basis.label) + "</button>" : "") +
@@ -1553,15 +1544,13 @@ function productList() {
       var s = row.snap, tr = trendOf(row.entry);
       /* a div, not a button: the row can contain its own button (the fix chip),
          and nested <button> is invalid and unreachable by keyboard */
-      var stale = isStale(s.date);
-      html += '<div class="entry' + (row.isBest ? " entry--best" : "") + (stale ? " entry--stale" : "") + '" role="button" tabindex="0" data-act="entry-menu" data-p="' + esc(p.id) + '" data-e="' + esc(row.entry.id) + '">';
+      html += '<div class="entry' + (row.isBest ? " entry--best" : "") + '" role="button" tabindex="0" data-act="entry-menu" data-p="' + esc(p.id) + '" data-e="' + esc(row.entry.id) + '">';
 
       /* start: who and what */
       html += '<span><span class="entry__store">' + esc(row.entry.storeName) +
         (s.isSale ? ' <span class="badge badge--sale">מבצע</span>' : "") +
         (row.isBest ? ' <span class="badge badge--best">★ הכי משתלם</span>' : "") +
-        (row.isPackBest ? ' <span class="badge badge--warn">הזול באריזה</span>' : "") +
-        (stale ? ' <span class="badge badge--stale">מחיר ישן</span>' : "") + "</span>";
+        (row.isPackBest ? ' <span class="badge badge--warn">הזול באריזה</span>' : "") + "</span>";
       var spark = sparkline(row.entry, r.basis);
       html += '<span class="entry__pack">' + esc(packLabel(s)) +
         (row.entry.note ? " · " + esc(row.entry.note) : "") +
@@ -1896,10 +1885,8 @@ var entryDlg = document.getElementById("entryDlg"), entryForm = document.getElem
 var sheetDlg = document.getElementById("sheetDlg"), askDlg = document.getElementById("askDlg");
 var editingProduct = null, entryCtx = null;
 
-function refreshDatalists() {
-  document.getElementById("catList").innerHTML = categories().map(function (c) { return '<option value="' + esc(c) + '">'; }).join("");
-  document.getElementById("storeList").innerHTML = storeNames().map(function (s) { return '<option value="' + esc(s) + '">'; }).join("");
-}
+/* the datalists are gone — pickers read the lists live when opened */
+function refreshDatalists() {}
 /* Resolve on the button's own click rather than the dialog "close" event:
    form-method=dialog submits do not reliably fire "close" in every engine,
    which would leave the promise pending and silently drop the action. */
@@ -2029,7 +2016,8 @@ document.getElementById("pasteApply").addEventListener("click", function () {
   if (res.error) { document.getElementById("pasteErr").textContent = res.error; return; }
   var d = res.data;
   /* reuse an existing product of the same name rather than duplicating it */
-  var p = state.products.filter(function (x) { return x.name === d.name; })[0];
+  var key = d.name.trim().toLowerCase();
+  var p = state.products.filter(function (x) { return String(x.name).trim().toLowerCase() === key; })[0];
   if (!p) {
     p = { id: uid("p"), name: d.name, category: d.category, defaultUnit: d.defaultUnit,
           notes: "", needed: false, entries: [] };
@@ -2047,6 +2035,35 @@ document.getElementById("pasteApply").addEventListener("click", function () {
   if (d.note) document.getElementById("eNote").value = d.note;
   setTimeout(function () { document.getElementById("eStore").focus(); }, 40);
 });
+
+/* ---------- value pickers ----------
+   A native <datalist> renders on Android as a thin suggestion strip above the
+   keyboard, so the curated shop and category lists were effectively invisible.
+   These open the same action sheet used elsewhere: a real, tappable list. */
+function openPicker(kind) {
+  var isStore = kind === "store";
+  var input = document.getElementById(isStore ? "eStore" : "pCat");
+  var names = isStore ? storeNames() : categories();
+  var buttons = names.map(function (n) {
+    return { label: (input.value.trim() === n ? "✓ " : "▸ ") + n, run: function () { input.value = n; } };
+  });
+  buttons.push({ label: isStore ? "+ חנות חדשה" : "+ קטגוריה חדשה", run: function () {
+    promptText(isStore ? "חנות חדשה" : "קטגוריה חדשה", isStore ? "שם החנות" : "שם הקטגוריה", "", function (v) {
+      if (!v) return "נדרש שם.";
+      if (isStore ? storeExists(v) : categoryExists(v)) return "כבר קיים.";
+      return null;
+    }).then(function (name) {
+      if (!name) return;
+      /* remember it even before it has a price, so it shows next time */
+      if (isStore) { state.stores.push(name); state.stores.sort(); }
+      else { state.categories.push(name); state.categories.sort(); }
+      save();
+      input.value = name;
+    });
+  } });
+  if (!isStore) buttons.push({ label: "— ללא קטגוריה", run: function () { input.value = ""; } });
+  openSheet(isStore ? "בחר חנות" : "בחר קטגוריה", buttons);
+}
 
 /* ---------- text prompt (category create / rename) ---------- */
 var promptDlg = document.getElementById("promptDlg");
@@ -2089,6 +2106,16 @@ function categoryCounts() {
   categories().forEach(function (c) { map[c] = 0; });
   state.products.forEach(function (p) { if (p.category) map[p.category] = (map[p.category] || 0) + 1; });
   return map;
+}
+/* One product per name, app-wide. Two rows called "חזה עוף" are not just
+   confusing: mergeInto keys on the name, so an import would silently fold them
+   into one and lose prices. exceptId lets a product keep its own name on edit. */
+function productNameTaken(name, exceptId) {
+  var k = String(name || "").trim().toLowerCase();
+  if (!k) return false;
+  return state.products.some(function (p) {
+    return p.id !== exceptId && String(p.name).trim().toLowerCase() === k;
+  });
 }
 function categoryExists(name) {
   return categories().some(function (c) { return c.toLowerCase() === name.toLowerCase(); });
@@ -2258,6 +2285,11 @@ document.getElementById("eSkip").addEventListener("click", skipInQueue);
 productForm.addEventListener("submit", function (ev) {
   var name = document.getElementById("pName").value.trim();
   if (!name) { ev.preventDefault(); document.getElementById("pErr").textContent = "נדרש שם מוצר."; return; }
+  if (productNameTaken(name, editingProduct && editingProduct.id)) {
+    ev.preventDefault();
+    document.getElementById("pErr").textContent = "כבר קיים מוצר בשם הזה.";
+    return;
+  }
   var data = { name: name, category: document.getElementById("pCat").value.trim(), defaultUnit: document.getElementById("pUnit").value, notes: document.getElementById("pNotes").value.trim() };
   if (editingProduct) { Object.assign(editingProduct, data); }
   else { state.products.unshift({ id: uid("p"), name: data.name, category: data.category, defaultUnit: data.defaultUnit, notes: data.notes, needed: false, entries: [] }); }
@@ -2506,7 +2538,7 @@ function doRestore() {
    7b. SANITY TESTS — pure-logic checks, never touch stored data.
    Auto-run once per APP_VERSION; result shown in the נתונים screen.
    ============================================================ */
-var APP_VERSION = "6.4.1";
+var APP_VERSION = "6.5.0";
 var KEY_TESTED = "priceTracker.selftest";
 var testReport = null;
 /* dev tooling is opt-in: ?dev=1 in the URL, or run __selftest() in the console */
@@ -2654,17 +2686,40 @@ function selfTests() {
     state = saved;
     return br.need === 2 && br.list.length === 2 && br.list[0].have === 1;
   });
-  t("גיל מחיר — מחיר מלפני יותר מ-3 שבועות מסומן כישן", function () {
-    return isStale("2026-07-01", "2026-07-31") === true && isStale("2026-07-20", "2026-07-31") === false;
-  });
   t("גיל מחיר — תיאור הגיל בעברית", function () {
     return ageLabel("2026-07-31", "2026-07-31") === "היום" &&
            ageLabel("2026-07-30", "2026-07-31") === "אתמול" &&
            ageLabel("2026-07-28", "2026-07-31") === "לפני 3 ימים" &&
            ageLabel("2026-07-01", "2026-07-31") === "לפני חודש";
   });
-  t("גיל מחיר — תאריך חסר או פגום אינו מסומן כישן", function () {
-    return isStale(null) === false && isStale("לא תאריך") === false;
+  t("גיל מחיר — תאריך חסר או פגום אינו מפיל את התיאור", function () {
+    return ageLabel(null) === "" && ageLabel("לא תאריך") === "";
+  });
+  t("שמות — לא ניתן ליצור שני מוצרים באותו שם", function () {
+    var saved = state;
+    state = { version: 5, categories: [], stores: [], products: [
+      { id: "a", name: "חזה עוף", category: "עוף", defaultUnit: "kg", notes: "", needed: false, entries: [] }] };
+    var dup = productNameTaken("חזה עוף");
+    var spaced = productNameTaken("  חזה עוף  ");
+    var other = productNameTaken("שוקיים");
+    state = saved;
+    return dup === true && spaced === true && other === false;
+  });
+  t("שמות — הבדל באותיות גדולות/קטנות עדיין נחשב כפול", function () {
+    var saved = state;
+    state = { version: 5, categories: [], stores: [], products: [
+      { id: "a", name: "Tuna", category: "", defaultUnit: "g", notes: "", needed: false, entries: [] }] };
+    var ok = productNameTaken("tuna") === true && productNameTaken("TUNA") === true;
+    state = saved;
+    return ok;
+  });
+  t("שמות — מוצר יכול לשמור על שמו שלו בעריכה", function () {
+    var saved = state;
+    state = { version: 5, categories: [], stores: [], products: [
+      { id: "a", name: "חזה עוף", category: "עוף", defaultUnit: "kg", notes: "", needed: false, entries: [] }] };
+    var ok = productNameTaken("חזה עוף", "a") === false;
+    state = saved;
+    return ok;
   });
   t("מחיר — אפס נדחה ואינו יכול לנצח השוואה", function () {
     return unitPriceIn(snap(1, 100, "g", 0), BASES.g) === null;
@@ -2874,6 +2929,8 @@ document.addEventListener("click", function (ev) {
   if (tab) { setScreen(tab.dataset.screen); return; }
   var pill = t.closest(".pill[data-cat]");
   if (pill) { filter.cat = pill.dataset.cat; render(); return; }
+  var pick = t.closest("[data-pick]");
+  if (pick) { openPicker(pick.dataset.pick); return; }
   var act = t.closest("[data-act]");
   if (!act) return;
   var a = act.dataset.act;
