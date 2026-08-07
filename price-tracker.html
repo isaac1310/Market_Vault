@@ -1293,14 +1293,16 @@ function snapshotForUndo(label) {
   undoSnapshot = { json: JSON.stringify(state), label: label };
   showToast(label);
 }
-function showToast(label) {
+function showToast(label, withUndo) {
   hideToast();
   var el = document.createElement("div");
   el.className = "toast";
   el.id = "toast";
-  el.innerHTML = '<span>' + esc(label) + '</span><button class="btn btn--sm" id="undoBtn">[ בטל ]</button>';
+  el.innerHTML = '<span>' + esc(label) + '</span>' +
+    (withUndo === false ? "" : '<button class="btn btn--sm" id="undoBtn">[ בטל ]</button>');
   document.body.appendChild(el);
-  document.getElementById("undoBtn").addEventListener("click", performUndo);
+  var btn = document.getElementById("undoBtn");
+  if (btn) btn.addEventListener("click", performUndo);
   undoTimer = setTimeout(hideToast, 6000);
 }
 function hideToast() {
@@ -2110,6 +2112,16 @@ function categoryCounts() {
 /* One product per name, app-wide. Two rows called "חזה עוף" are not just
    confusing: mergeInto keys on the name, so an import would silently fold them
    into one and lose prices. exceptId lets a product keep its own name on edit. */
+/* Editing a product's category while a category filter is active used to make
+   the card vanish with no explanation — the save had worked, but the product
+   was now filtered out, which reads as "moving categories does nothing". */
+function filterHidesProduct(product) {
+  if (!product) return false;
+  if (filter.cat && product.category !== filter.cat) return true;
+  if (filter.store && !product.entries.some(function (e) { return storeKey(e.storeName) === filter.store; })) return true;
+  return false;
+}
+
 function productNameTaken(name, exceptId) {
   var k = String(name || "").trim().toLowerCase();
   if (!k) return false;
@@ -2291,7 +2303,19 @@ productForm.addEventListener("submit", function (ev) {
     return;
   }
   var data = { name: name, category: document.getElementById("pCat").value.trim(), defaultUnit: document.getElementById("pUnit").value, notes: document.getElementById("pNotes").value.trim() };
-  if (editingProduct) { Object.assign(editingProduct, data); }
+  if (editingProduct) {
+    var movedFrom = editingProduct.category;
+    Object.assign(editingProduct, data);
+    if (filterHidesProduct(editingProduct)) {
+      /* follow it rather than letting it disappear */
+      if (filter.cat && editingProduct.category !== filter.cat) filter.cat = editingProduct.category;
+      if (filterHidesProduct(editingProduct)) { filter.cat = ""; filter.store = ""; }
+      pillsExpanded = true;
+      showToast(movedFrom !== editingProduct.category
+        ? "הועבר אל “" + (editingProduct.category || "ללא קטגוריה") + "”"
+        : "המוצר עודכן", false);
+    }
+  }
   else { state.products.unshift({ id: uid("p"), name: data.name, category: data.category, defaultUnit: data.defaultUnit, notes: data.notes, needed: false, entries: [] }); }
   save(); setTimeout(render, 0);
 });
@@ -2538,7 +2562,7 @@ function doRestore() {
    7b. SANITY TESTS — pure-logic checks, never touch stored data.
    Auto-run once per APP_VERSION; result shown in the נתונים screen.
    ============================================================ */
-var APP_VERSION = "6.5.0";
+var APP_VERSION = "6.5.1";
 var KEY_TESTED = "priceTracker.selftest";
 var testReport = null;
 /* dev tooling is opt-in: ?dev=1 in the URL, or run __selftest() in the console */
@@ -2694,6 +2718,31 @@ function selfTests() {
   });
   t("גיל מחיר — תאריך חסר או פגום אינו מפיל את התיאור", function () {
     return ageLabel(null) === "" && ageLabel("לא תאריך") === "";
+  });
+  t("סינון — מוצר שיצא מהקטגוריה המסוננת מזוהה כמוסתר", function () {
+    var savedF = filter, savedS = state;
+    state = { version: 5, categories: [], stores: [], products: [] };
+    var p = { id: "a", name: "כרעיים", category: "בשר", defaultUnit: "kg", notes: "", needed: false, entries: [] };
+    filter = { q: "", cat: "עוף", store: "" };
+    var hidden = filterHidesProduct(p);
+    filter = { q: "", cat: "בשר", store: "" };
+    var shown = filterHidesProduct(p);
+    filter = { q: "", cat: "", store: "" };
+    var noFilter = filterHidesProduct(p);
+    filter = savedF; state = savedS;
+    return hidden === true && shown === false && noFilter === false;
+  });
+  t("סינון — מוצר שאין בו החנות המסוננת מזוהה כמוסתר", function () {
+    var savedF = filter, savedS = state;
+    state = { version: 5, categories: [], stores: [], products: [] };
+    var p = { id: "a", name: "x", category: "", defaultUnit: "g", notes: "", needed: false,
+              entries: [entryOf("שופרסל", [snap(1, 100, "g", 10)])] };
+    filter = { q: "", cat: "", store: "רמי לוי" };
+    var hidden = filterHidesProduct(p);
+    filter = { q: "", cat: "", store: "שופרסל" };
+    var shown = filterHidesProduct(p);
+    filter = savedF; state = savedS;
+    return hidden === true && shown === false;
   });
   t("שמות — לא ניתן ליצור שני מוצרים באותו שם", function () {
     var saved = state;
