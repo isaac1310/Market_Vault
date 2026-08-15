@@ -1652,7 +1652,8 @@ function offerPanel(i) {
       Object.keys(UNITS).map(function (u) { return '<option value="' + u + '"' + (o.unit === u ? " selected" : "") + ">" + esc(UNITS[u].label) + "</option>"; }).join("") +
     "</select></div></div>" +
     '<div class="field"><label for="c' + i + 'p">מחיר כולל ₪</label><input id="c' + i + 'p" data-c="' + i + '" data-f="price" type="number" min="0" step="0.01" inputmode="decimal" value="' + esc(o.price) + '" placeholder="24.90"></div>' +
-    '<button class="btn btn--sm" data-act="calc-load" data-i="' + i + '">[ טען מהמאגר ]</button>' +
+    '<div class="btn-row"><button class="btn btn--sm" data-act="calc-load" data-i="' + i + '">[ טען מהמאגר ]</button>' +
+    '<button class="btn btn--sm" data-act="calc-clear-one" data-i="' + i + '">[ נקה הצעה ]</button></div>' +
     "</div>";
 }
 
@@ -1679,13 +1680,16 @@ function calcVerdict() {
 }
 
 function viewCalc() {
-  var html = '<div class="panel"><div class="panel__head"><span class="panel__title">מחשבון כדאיות</span></div>' +
+  /* Actions live in the header, not after the offers. Below the fields the
+     clear button sat at y≈904 on a 915px screen — behind the tab bar, reachable
+     only by scrolling past every input, so it may as well not have existed. */
+  var html = '<div class="panel"><div class="panel__head"><span class="panel__title">מחשבון כדאיות</span>' +
+    '<span class="btn-row">' +
+    (calcCount < 3 ? '<button class="btn btn--sm" id="addOffer">[ + הצעה ]</button>' : "") +
+    '<button class="btn btn--sm" id="clearCalc">[ נקה הכל ]</button></span></div>' +
     '<p class="muted tiny" style="margin:0">הזן שתי הצעות או יותר — המחשבון ישווה מחיר ליחידה ויגיד מה משתלם.</p></div>';
   html += '<div id="verdict">' + verdictHtml() + "</div>";
   for (var i = 0; i < calcCount; i++) html += offerPanel(i);
-  html += '<div class="btn-row">';
-  if (calcCount < 3) html += '<button class="btn" id="addOffer">[ + הצעה שלישית ]</button>';
-  html += '<button class="btn" id="clearCalc">[ נקה ]</button></div>';
   return html;
 }
 function verdictHtml() {
@@ -1742,6 +1746,13 @@ function loadCalc() {
     }
     calcCount = c.count === 3 ? 3 : 2;
   } catch (e) {}
+}
+
+function clearCalcOffer(i) {
+  if (!calcState[i]) return;
+  calcState[i] = { qty: "", size: "", unit: "g", price: "" };
+  saveCalc();
+  render();
 }
 
 /* ---------- calculator ↔ catalogue ---------- */
@@ -2562,7 +2573,7 @@ function doRestore() {
    7b. SANITY TESTS — pure-logic checks, never touch stored data.
    Auto-run once per APP_VERSION; result shown in the נתונים screen.
    ============================================================ */
-var APP_VERSION = "6.5.1";
+var APP_VERSION = "6.6.0";
 var KEY_TESTED = "priceTracker.selftest";
 var testReport = null;
 /* dev tooling is opt-in: ?dev=1 in the URL, or run __selftest() in the console */
@@ -2998,6 +3009,7 @@ document.addEventListener("click", function (ev) {
   }
   else if (a === "paste-open") { openPasteDialog(); }
   else if (a === "calc-load") { calcLoadFrom(Number(act.dataset.i)); }
+  else if (a === "calc-clear-one") { clearCalcOffer(Number(act.dataset.i)); }
   else if (a === "calc-save") { calcSaveAsEntry(Number(act.dataset.i)); }
   else if (a === "store-filter") { filter.store = act.dataset.s; filter.cat = ""; setScreen("products"); }
   else if (a === "store-clear") { filter.store = ""; render(); }
