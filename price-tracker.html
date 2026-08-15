@@ -1487,6 +1487,14 @@ function viewProducts() {
   else if (storageNote) html += '<div class="banner">⚠ ' + esc(storageNote) + "</div>";
   /* migration banner removed — the missing-pack-data count in נתונים and the
      inline "השלם כמות ומשקל" chips already say this where it is actionable */
+  if (backupOverdue()) {
+    var wasEver = !!lastExportDate();
+    html += '<div class="banner" style="display:flex;justify-content:space-between;align-items:center;gap:8px">' +
+      "<span>⚠ " + (wasEver
+        ? "הגיבוי האחרון נשמר " + esc(ageLabel(lastExportDate())) + "."
+        : "לא נשמר גיבוי. הנתונים קיימים רק במכשיר הזה.") +
+      '</span><button class="btn btn--sm btn--primary" data-act="export">[ שמור גיבוי ]</button></div>';
+  }
 
   html += '<div class="field"><label for="q">חיפוש</label><input id="q" type="search" placeholder="שם מוצר או קטגוריה" value="' + esc(filter.q) + '"></div>';
   var cats = categories();
@@ -1858,6 +1866,9 @@ function viewData() {
     (missing ? '<button class="btn btn--primary btn--full" data-act="fill-queue" style="margin-top:10px">[ השלם נתונים · ' + missing + " ]</button>" : "") +
     "</div>";
   html += '<div class="panel"><div class="panel__head"><span class="panel__title">גיבוי ושחזור</span></div>' +
+    '<div class="verdict__line"><span>גיבוי אחרון</span><span>' +
+      (lastExportDate() ? esc(ageLabel(lastExportDate())) + ' · <span class="num">' + esc(lastExportDate()) + "</span>" : "מעולם לא נשמר") +
+    "</span></div>" +
     '<div class="btn-row"><button class="btn btn--primary" data-act="export">[ ייצוא JSON ]</button>' +
     '<button class="btn" data-act="import">[ ייבוא JSON ]</button>' +
     (lsGet(KEY_BACKUP) ? '<button class="btn btn--go" data-act="restore">[ שחזור גיבוי אחרון ]</button>' : "") +
@@ -2498,13 +2509,34 @@ function entryMenu(p, e) {
 /* ============================================================
    7. EXPORT / IMPORT
    ============================================================ */
+/* This data lives in exactly one browser on one phone. Clearing site data,
+   losing the phone, or Android reclaiming storage takes all of it, and the
+   export button only helps if someone remembers to press it — so the app
+   tracks when a copy was last saved and asks when that goes stale. */
+var KEY_EXPORTED = "priceTracker.lastExport";
+var BACKUP_NAG_DAYS = 30;
+
+function lastExportDate() {
+  var v = lsGet(KEY_EXPORTED);
+  /* localStorage stringifies anything, so a stray null becomes "null" */
+  return /^\d{4}-\d{2}-\d{2}$/.test(v || "") ? v : "";
+}
+function backupAgeDays() { return ageDays(lastExportDate()); }
+function backupOverdue() {
+  if (!state.products.length) return false;      /* nothing to lose yet */
+  var d = backupAgeDays();
+  return d === null || d > BACKUP_NAG_DAYS;      /* never exported, or long ago */
+}
+
 function doExport() {
   var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
   var a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "price-tracker-v2-" + todayISO() + ".json";
+  a.download = "market-vault-" + todayISO() + ".json";
   document.body.appendChild(a); a.click();
   setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  lsSet(KEY_EXPORTED, todayISO());
+  render();
 }
 function validateImport(text) {
   var parsed;
@@ -2573,7 +2605,7 @@ function doRestore() {
    7b. SANITY TESTS — pure-logic checks, never touch stored data.
    Auto-run once per APP_VERSION; result shown in the נתונים screen.
    ============================================================ */
-var APP_VERSION = "6.6.0";
+var APP_VERSION = "6.7.1";
 var KEY_TESTED = "priceTracker.selftest";
 var testReport = null;
 /* dev tooling is opt-in: ?dev=1 in the URL, or run __selftest() in the console */
@@ -2729,6 +2761,36 @@ function selfTests() {
   });
   t("גיל מחיר — תאריך חסר או פגום אינו מפיל את התיאור", function () {
     return ageLabel(null) === "" && ageLabel("לא תאריך") === "";
+  });
+  t("גיבוי — מאגר ריק אינו מבקש גיבוי", function () {
+    var saved = state, savedKey = lastExportDate();
+    state = { version: 5, categories: [], stores: [], products: [] };
+    lsSet(KEY_EXPORTED, "");
+    var quiet = backupOverdue() === false;
+    state = saved; lsSet(KEY_EXPORTED, savedKey);
+    return quiet;
+  });
+  t("גיבוי — מאגר עם נתונים שמעולם לא גובה מבקש גיבוי", function () {
+    var saved = state, savedKey = lastExportDate();
+    state = { version: 5, categories: [], stores: [], products: [
+      { id: "a", name: "x", category: "", defaultUnit: "g", notes: "", needed: false, entries: [] }] };
+    lsSet(KEY_EXPORTED, "");
+    var asks = backupOverdue() === true;
+    state = saved; lsSet(KEY_EXPORTED, savedKey);
+    return asks;
+  });
+  t("גיבוי — גיבוי טרי משתיק את ההתראה, ישן מחזיר אותה", function () {
+    var saved = state, savedKey = lastExportDate();
+    state = { version: 5, categories: [], stores: [], products: [
+      { id: "a", name: "x", category: "", defaultUnit: "g", notes: "", needed: false, entries: [] }] };
+    lsSet(KEY_EXPORTED, todayISO());
+    var quiet = backupOverdue() === false;
+    var old = new Date(Date.now() - 60 * 86400000);
+    var pad = function (n) { return String(n).padStart(2, "0"); };
+    lsSet(KEY_EXPORTED, old.getFullYear() + "-" + pad(old.getMonth() + 1) + "-" + pad(old.getDate()));
+    var asks = backupOverdue() === true;
+    state = saved; lsSet(KEY_EXPORTED, savedKey);
+    return quiet && asks;
   });
   t("סינון — מוצר שיצא מהקטגוריה המסוננת מזוהה כמוסתר", function () {
     var savedF = filter, savedS = state;
