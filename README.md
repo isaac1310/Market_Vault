@@ -21,6 +21,15 @@ price-tracker.html ──┬──> deploy/index.html  (+ sw.js, manifest, icons
 `deploy/` and `vault-mart.html` are **git-ignored and never committed** — Vercel
 runs the build on every push, so a stale deployed copy is impossible.
 
+## The home screen — השווה עכשיו
+
+The app opens on a comparison, not a list: two offers, one line each
+(`×1 ×2 ×3` · size · unit · price), a verdict that updates while you type,
+an optional brand per offer, a sale toggle that asks for the regular price on
+the tag, and a one-tap save of the winner to the shop you're standing in. A
+strip beneath recalls what the attached product cost at other shops — regular
+prices first, sales labelled as sales with their age.
+
 ## Files
 
 | Path | What it is |
@@ -31,6 +40,7 @@ runs the build on every push, so a stale deployed copy is impossible.
 | `vercel.json` | Tells Vercel to run the build and serve `deploy/`. |
 | `preview-ultra.html` | Renders the app in a Galaxy Ultra-sized frame for desktop review. |
 | `ENHANCEMENT-PLAN.md` | The design review and phased spec this was built from. |
+| [`docs/PROJECT-REVIEW-2026-09-05.md`](docs/PROJECT-REVIEW-2026-09-05.md) | Current project and UX/UI review, prioritized feature proposals, and a suggested six-week delivery timeline. |
 | `UI-TEST-PLAN.md` | 40-case manual/agent UI test plan. |
 
 ## Building and deploying
@@ -71,13 +81,14 @@ The אודות badge shows both, e.g. `v6.3.0 · סכמה 5`.
 
 | Key | Contents |
 |---|---|
-| `priceTracker.v2` | Products, prices, categories, shops (schema 5) |
-| `priceTracker.theme` | `vault` \| `wopr` \| `slip` |
+| `priceTracker.v2` | Products, prices, categories, shops (schema 6 — a sale snapshot may carry `regularPrice`) |
+| `priceTracker.theme` | `vault` \| `wopr` \| `slip` \| `hub` |
+| `priceTracker.shop` | The shop you are standing in — remembered until you change it |
 | `priceTracker.crt` | `off` \| `subtle` \| `full` |
-| `priceTracker.calc` | Calculator inputs |
+| `priceTracker.calc` | The compare-now offers and the attached product |
 | `priceTracker.v2.backup` | Auto-backup taken before any import |
 
-Theme, CRT and calculator state are deliberately **outside** the app state, so
+Theme, CRT, current shop and compare-now state are deliberately **outside** the app state, so
 export / import / migration never touch them.
 
 Export and import JSON from the נתונים screen. That export is the only backup —

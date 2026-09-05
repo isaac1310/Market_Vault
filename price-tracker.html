@@ -678,6 +678,41 @@ dialog::backdrop { background: rgba(0,0,0,.75); }
   font-size: 13px; color: var(--amber-bright);
 }
 html[data-theme="wopr"] .toast { clip-path: var(--cut); border-color: var(--rust); }
+/* ---- compare-now ---- */
+.panel--tight { padding-bottom: 4px; }
+.shop-chip { font: inherit; font-size: 12px; background: transparent; color: var(--amber-bright); border: 1px solid var(--line); border-radius: var(--radius-pill); padding: 8px 12px; min-height: 44px; cursor: pointer; white-space: nowrap; max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
+.shop-chip--unset { color: var(--rust); border-color: var(--rust); border-style: dashed; }
+.verdict--big { text-align: center; padding: 16px 12px; }
+.verdict__hero { font-size: 34px; font-weight: 800; line-height: 1.1; color: var(--green-bright); word-break: break-word; }
+.verdict__star { color: var(--green); }
+.verdict__sub { font-size: 16px; margin-top: 4px; color: var(--amber-bright); }
+.verdict__note { font-size: 13px; margin-top: 6px; color: var(--amber-dim); }
+.verdict__note--warn { color: var(--rust); }
+.verdict__rows { margin-top: 10px; text-align: start; }
+.offer { background: var(--bg-panel); border: 1px solid var(--line-soft); border-radius: var(--radius-card); padding: 10px 12px; margin-bottom: 10px; }
+.offer--sale { border-color: var(--rust); }
+.offer__head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.offer__letter { font-family: var(--mono); font-weight: 700; color: var(--amber-dim); min-width: 16px; }
+.offer__brand { font: inherit; font-size: 13px; background: transparent; border: 0; color: var(--amber); text-decoration: underline dashed; text-underline-offset: 3px; padding: 8px 4px; min-height: 44px; cursor: pointer; flex: 1; text-align: start; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.offer__sale { margin: 0; white-space: nowrap; }
+.offer__x { font: inherit; background: transparent; border: 1px solid var(--line-soft); color: var(--amber-dim); border-radius: var(--radius); width: 44px; height: 44px; cursor: pointer; flex: none; }
+.offer__brandin { margin-bottom: 8px; }
+.offer__line { display: grid; grid-template-columns: auto minmax(0, 1.1fr) minmax(0, 1fr) minmax(0, 1.2fr); gap: 6px; align-items: stretch; }
+.offer__line input, .offer__line select { min-height: 48px; font-size: 17px; padding: 8px; text-align: center; }
+.offer__price { font-weight: 700; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; align-items: center; }
+.seg__btn { font: inherit; font-family: var(--mono); font-size: 14px; background: transparent; border: 0; border-inline-end: 1px solid var(--line-soft); color: var(--amber-dim); width: 44px; height: 48px; cursor: pointer; }
+.seg__btn:last-of-type { border-inline-end: 0; }
+.seg__btn[aria-pressed="true"] { background: var(--active-wash); color: var(--amber-bright); font-weight: 700; }
+.seg__more { padding: 0 8px; color: var(--amber-bright); }
+.offer__reg { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; color: var(--rust); }
+.offer__reg label { white-space: nowrap; }
+.offer__reg input { min-height: 44px; }
+.recall { background: var(--bg-panel); border: 1px dashed var(--line); border-radius: var(--radius-card); padding: 10px 12px; margin-top: 4px; display: flex; flex-direction: column; gap: 6px; }
+.recall__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 600; color: var(--amber-bright); }
+.recall > .btn { align-self: flex-start; }
+@media (max-width: 380px) { .offer__line { grid-template-columns: auto minmax(0,1fr) minmax(0,.85fr) minmax(0,1.05fr); gap: 4px; } .offer__line input, .offer__line select { font-size: 16px; padding: 8px 4px; } .verdict__hero { font-size: 30px; } }
+
 .test-line { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; padding: 3px 0; border-bottom: 1px dashed var(--line-soft); }
 .test-pass { color: var(--green-bright); }
 .test-fail { color: var(--rust); }
@@ -713,7 +748,7 @@ try {
     <span class="leds" aria-hidden="true"><i class="led led--on"></i><i class="led"></i><i class="led"></i></span>
     <span id="brand">◉ MARKET-VAULT</span>
   </span>
-  <span class="appbar__title"><span class="status-chip">ONLINE</span> מעקב מחירים</span>
+  <button type="button" class="shop-chip shop-chip--unset" id="shopChip" data-act="shop-pick" aria-label="החנות הנוכחית">📍 איפה אני?</button>
 </header>
 
 <main id="main" class="boot"></main>
@@ -759,6 +794,7 @@ try {
     </div>
     <div class="field"><label for="ePrice">מחיר כולל ₪</label><input id="ePrice" autocomplete="off" type="number" min="0" step="0.01" inputmode="decimal" required></div>
     <div class="check"><input type="checkbox" id="eSale"><label for="eSale">מבצע</label></div>
+    <div class="field" id="eRegWrap" hidden><label for="eRegular">מחיר רגיל ₪ (מהתווית)</label><input id="eRegular" type="number" min="0" step="0.01" inputmode="decimal" autocomplete="off" placeholder="49.90"></div>
     <div class="field"><label for="eDate">תאריך</label><input id="eDate" type="date" required></div>
     <div class="field"><label for="eNote">הערה</label><input id="eNote" maxlength="120"></div>
     <p class="muted tiny">השאר כמות/גודל ריקים אם לא ידוע — הרשומה תוצג אך לא תשתתף בהשוואה.</p>
@@ -824,7 +860,7 @@ var KEY_V1 = "priceTracker.v1";
 var KEY_BACKUP = "priceTracker.v2.backup";
 var KEY_THEME = "priceTracker.theme";
 var storageOK = true, storageNote = "";
-var SCHEMA_VERSION = 5;
+var SCHEMA_VERSION = 6;
 var state = { version: SCHEMA_VERSION, products: [], categories: [], stores: [] };
 var migratedBanner = false;
 
@@ -843,6 +879,18 @@ var THEMES = {
 };
 function currentTheme() { var v = lsGet(KEY_THEME); return THEMES[v] ? v : "vault"; }
 var KEY_CRT = "priceTracker.crt";
+/* The shop you are standing in. Remembered until you change it — never per
+   day, two shops in one afternoon is normal. Outside `state` like the theme. */
+var KEY_SHOP = "priceTracker.shop";
+function currentShop() { return (lsGet(KEY_SHOP) || "").trim(); }
+function setCurrentShop(name) { lsSet(KEY_SHOP, name || ""); renderShopChip(); }
+function renderShopChip() {
+  var el = document.getElementById("shopChip");
+  if (!el) return;
+  var s = currentShop();
+  el.textContent = s ? "📍 " + s : "📍 איפה אני?";
+  el.classList.toggle("shop-chip--unset", !s);
+}
 function currentCrt() { var v = lsGet(KEY_CRT); return (v === "off" || v === "full") ? v : "subtle"; }
 function setCrt(v) {
   lsSet(KEY_CRT, v);
@@ -1012,7 +1060,7 @@ function migrateV1(v1) {
     (p.stores || []).forEach(function (s) {
       var hist = (Array.isArray(s.history) && s.history.length ? s.history : [{ price: s.currentPrice, date: s.lastUpdated }])
         .filter(function (h) { return isFinite(Number(h.price)); })
-        .map(function (h) { return { qty: null, size: null, unit: null, price: Number(h.price), isSale: false, date: h.date || todayISO() }; });
+        .map(function (h) { return { qty: null, size: null, unit: null, price: Number(h.price), isSale: false, date: h.date || todayISO(), regularPrice: null }; });
       if (!hist.length) return;
       prod.entries.push({
         id: uid("e"), storeName: String(s.storeName || "?"), note: String(s.note || ""),
@@ -1077,14 +1125,34 @@ function migrateV4toV5(s) {
   if (!Array.isArray(s.stores)) s.stores = [];
   return s;
 }
+/* v5 → v6: a sale snapshot may carry the shelf's regular price. Speaks the
+   SOURCE version's keys explicitly (fastTracker lesson 12) — never iterates a
+   current constant, so a later rename cannot silently drop a field here. */
+var V5_SNAPSHOT_KEYS = ["qty", "size", "unit", "price", "isSale", "date"];
+function migrateV5toV6(s) {
+  if (!s || Number(s.version) >= 6) return s;
+  s.version = 6;
+  (s.products || []).forEach(function (p) {
+    (p.entries || []).forEach(function (e) {
+      (e.history || []).forEach(function (h) {
+        var next = {};
+        V5_SNAPSHOT_KEYS.forEach(function (k) { next[k] = h[k]; });
+        next.regularPrice = null;
+        for (var k in next) h[k] = next[k];
+      });
+    });
+  });
+  return s;
+}
 
 function normalizeState(p) {
   var out = { version: SCHEMA_VERSION, products: [], categories: [], stores: [] };
   var v = Number(p && p.version);
-  if (v && v !== 2 && v !== 3 && v !== 4 && v !== 5) return out; /* unknown schema — refuse rather than guess */
+  if (v && v !== 2 && v !== 3 && v !== 4 && v !== 5 && v !== 6) return out; /* unknown schema — refuse rather than guess */
   migrateV2toV3(p);
   migrateV3toV4(p);
   migrateV4toV5(p);
+  migrateV5toV6(p);
   if (Array.isArray(p.categories)) {
     p.categories.forEach(function (c) {
       c = String(c || "").trim();
@@ -1114,7 +1182,8 @@ function normalizeState(p) {
             qty: isFinite(Number(h.qty)) && Number(h.qty) > 0 ? Number(h.qty) : null,
             size: isFinite(Number(h.size)) && Number(h.size) > 0 ? Number(h.size) : null,
             unit: UNITS[h.unit] ? h.unit : null,
-            price: Number(h.price), isSale: !!h.isSale, date: String(h.date || todayISO())
+            price: Number(h.price), isSale: !!h.isSale, date: String(h.date || todayISO()),
+            regularPrice: isFinite(Number(h.regularPrice)) && Number(h.regularPrice) > 0 ? Number(h.regularPrice) : null
           };
         });
       if (!hist.length) return;
@@ -1129,18 +1198,19 @@ function normalizeState(p) {
    5. ROUTER + RENDER
    ============================================================ */
 var SCREENS = [
+  { id: "compare", label: "השווה" },
   { id: "products", label: "מוצרים" },
   { id: "stores", label: "חנויות" },
-  { id: "calc", label: "מחשבון" },
   { id: "data", label: "נתונים" }
 ];
-var screen = "products";
+var screen = "compare";
 var filter = { q: "", cat: "", store: "" };
 var pillsExpanded = false;
 var mainEl = document.getElementById("main");
 
 function setScreen(id) {
-  screen = SCREENS.some(function (s) { return s.id === id; }) ? id : "products";
+  if (id === "calc") id = "compare"; /* old bookmarks */
+  screen = SCREENS.some(function (s) { return s.id === id; }) ? id : "compare";
   if (location.hash.slice(1) !== screen) location.hash = screen;
   render();
 }
@@ -1159,9 +1229,9 @@ function renderChrome() {
 function renderScreen() {
   if (screen === "products") mainEl.innerHTML = viewProducts();
   else if (screen === "stores") mainEl.innerHTML = viewStores();
-  else if (screen === "calc") mainEl.innerHTML = viewCalc();
+  else if (screen === "compare") mainEl.innerHTML = viewCompare();
   else mainEl.innerHTML = viewData();
-  if (screen === "calc") wireCalc();
+  if (screen === "compare") wireCompare();
   refreshDatalists();
 }
 /* Re-render only the results list. Keeps the search field (and its caret,
@@ -1643,176 +1713,224 @@ function viewStores() {
 }
 
 /* ---------- calculator ---------- */
-var calcState = [
-  { qty: "", size: "", unit: "g", price: "" },
-  { qty: "", size: "", unit: "g", price: "" },
-  { qty: "", size: "", unit: "g", price: "" }
-];
+/* ============================================================
+   COMPARE NOW — the home screen. "500g pasta in hand, a sale on 2×350g of
+   another brand: which one, right now." Offers are one line each; the verdict
+   is the biggest thing on screen; the winner saves in one tap to the shop you
+   are standing in; the strip beneath recalls what this cost elsewhere.
+   ============================================================ */
+function blankOffer() { return { qty: "1", size: "", unit: "g", price: "", brand: "", isSale: false, regular: "", brandOpen: false }; }
+var calcState = [blankOffer(), blankOffer(), blankOffer()];
 var calcCount = 2;
-
-function offerPanel(i) {
-  var o = calcState[i], letter = ["A", "B", "C"][i];
-  return '<div class="panel"><div class="panel__head"><span class="panel__title">הצעה ' + letter + '</span></div>' +
-    '<div class="grid3">' +
-    '<div class="field"><label for="c' + i + 'q">כמות</label><input id="c' + i + 'q" data-c="' + i + '" data-f="qty" type="number" min="0" step="any" inputmode="decimal" value="' + esc(o.qty) + '" placeholder="4"></div>' +
-    '<div class="field"><label for="c' + i + 's">גודל</label><input id="c' + i + 's" data-c="' + i + '" data-f="size" type="number" min="0" step="any" inputmode="decimal" value="' + esc(o.size) + '" placeholder="98"></div>' +
-    '<div class="field"><label for="c' + i + 'u">יחידה</label><select id="c' + i + 'u" data-c="' + i + '" data-f="unit">' +
-      Object.keys(UNITS).map(function (u) { return '<option value="' + u + '"' + (o.unit === u ? " selected" : "") + ">" + esc(UNITS[u].label) + "</option>"; }).join("") +
-    "</select></div></div>" +
-    '<div class="field"><label for="c' + i + 'p">מחיר כולל ₪</label><input id="c' + i + 'p" data-c="' + i + '" data-f="price" type="number" min="0" step="0.01" inputmode="decimal" value="' + esc(o.price) + '" placeholder="24.90"></div>' +
-    '<div class="btn-row"><button class="btn btn--sm" data-act="calc-load" data-i="' + i + '">[ טען מהמאגר ]</button>' +
-    '<button class="btn btn--sm" data-act="calc-clear-one" data-i="' + i + '">[ נקה הצעה ]</button></div>' +
-    "</div>";
-}
+var compareProductId = null; /* the product this comparison is about, if known */
 
 function calcOffer(i) {
   var o = calcState[i];
-  var qty = num(o.qty), size = num(o.size), price = num(o.price);
+  var qty = o.qty === "" ? 1 : num(o.qty), size = num(o.size), price = num(o.price);
   if (!(qty > 0) || !(size > 0) || !(price > 0) || !UNITS[o.unit]) return null;
-  return { i: i, letter: ["A", "B", "C"][i], dim: UNITS[o.unit].dim, base: qty * size * UNITS[o.unit].base, price: price };
+  var regular = o.isSale && o.regular !== "" ? num(o.regular) : null;
+  return { i: i, letter: ["A", "B", "C"][i], dim: UNITS[o.unit].dim, base: qty * size * UNITS[o.unit].base,
+           price: price, qty: qty, size: size, unit: o.unit, brand: (o.brand || "").trim(),
+           isSale: !!o.isSale, regular: isFinite(regular) && regular > 0 ? regular : null };
 }
 function calcVerdict() {
   var offers = [];
   for (var i = 0; i < calcCount; i++) { var o = calcOffer(i); if (o) offers.push(o); }
-  if (offers.length < 2) return { kind: "incomplete" };
+  if (offers.length < 2) return { kind: "incomplete", have: offers.length };
   var dim = offers[0].dim;
   if (offers.some(function (o) { return o.dim !== dim; })) return { kind: "mixed" };
   var basis = dim === "mass" ? BASES.g : dim === "volume" ? BASES.ml : BASES.unit;
-  offers.forEach(function (o) { o.up = o.price / o.base * basis.amount; });
+  offers.forEach(function (o) {
+    o.up = o.price / o.base * basis.amount;
+    o.upRegular = o.regular != null ? o.regular / o.base * basis.amount : null;
+  });
   var sorted = offers.slice().sort(function (a, b) { return a.up - b.up; });
   var best = sorted[0], worst = sorted[sorted.length - 1];
   var tie = sorted.every(function (o) { return Math.abs(o.up - best.up) < 1e-9; });
+  var regularWinner = null;
+  if (best.isSale && best.upRegular != null) {
+    var others = sorted.filter(function (o) { return o !== best && o.up < best.upRegular; });
+    if (others.length) regularWinner = others[0];
+  }
   return { kind: tie ? "tie" : "ok", basis: basis, sorted: sorted, best: best, worst: worst,
     savePct: best.up > 0 ? (worst.up - best.up) / worst.up * 100 : 0,
-    saveAbs: (worst.up - best.up) * (worst.base / basis.amount) };
+    saveAbs: (worst.up - best.up) * (worst.base / basis.amount), regularWinner: regularWinner };
 }
 
-function viewCalc() {
-  /* Actions live in the header, not after the offers. Below the fields the
-     clear button sat at y≈904 on a 915px screen — behind the tab bar, reachable
-     only by scrolling past every input, so it may as well not have existed. */
-  var html = '<div class="panel"><div class="panel__head"><span class="panel__title">מחשבון כדאיות</span>' +
-    '<span class="btn-row">' +
-    (calcCount < 3 ? '<button class="btn btn--sm" id="addOffer">[ + הצעה ]</button>' : "") +
-    '<button class="btn btn--sm" id="clearCalc">[ נקה הכל ]</button></span></div>' +
-    '<p class="muted tiny" style="margin:0">הזן שתי הצעות או יותר — המחשבון ישווה מחיר ליחידה ויגיד מה משתלם.</p></div>';
-  html += '<div id="verdict">' + verdictHtml() + "</div>";
-  for (var i = 0; i < calcCount; i++) html += offerPanel(i);
-  return html;
-}
-function verdictHtml() {
-  var v = calcVerdict();
-  if (v.kind === "incomplete") return '<div class="verdict verdict--none">מלא לפחות שתי הצעות (כמות, גודל, מחיר).</div>';
-  if (v.kind === "mixed") return '<div class="verdict verdict--none">לא ניתן להשוות — ההצעות במידות שונות (משקל מול נפח מול יחידות).</div>';
-  var head = v.kind === "tie" ? "תיקו — אותו מחיר ליחידה" : "הצעה " + v.best.letter + " ★ משתלמת יותר";
-  var html = '<div class="verdict"><div class="verdict__head glow">' + esc(head) + "</div>";
-  v.sorted.forEach(function (o) {
-    html += '<div class="verdict__line"><span>הצעה ' + o.letter + (o === v.best && v.kind === "ok" ? " ★" : "") + '</span>' +
-      '<span class="num">' + moneyU(o.up) + " " + esc(v.basis.label) + "</span></div>";
-  });
-  if (v.kind === "ok") {
-    html += '<div class="verdict__line" style="border-top:1px solid var(--line-soft);margin-top:6px;padding-top:6px">' +
-      "<span>חיסכון מול היקרה</span><span class=\"num\">" + v.savePct.toFixed(1) + "% · " + money(v.saveAbs) + " על כמות זהה</span></div>";
-    html += '<button class="btn btn--sm btn--go btn--full" data-act="calc-save" data-i="' + v.best.i + '" style="margin-top:10px">[ שמור את ' + v.best.letter + " כמחיר במאגר ]</button>";
-  }
+function offerLabel(o, i) { return (o.brand && o.brand.trim()) ? o.brand.trim() : "הצעה " + ["A", "B", "C"][i]; }
+
+function offerRow(i) {
+  var o = calcState[i], letter = ["A", "B", "C"][i];
+  var qtyN = o.qty === "" ? 1 : num(o.qty);
+  var segs = [1, 2, 3].map(function (q) {
+    return '<button type="button" class="seg__btn" data-act="cmp-qty" data-i="' + i + '" data-q="' + q + '" aria-pressed="' + (qtyN === q) + '">×' + q + "</button>";
+  }).join("") + (qtyN > 3 ? '<span class="seg__more num">×' + trimNum(qtyN) + "</span>" : "");
+  var html = '<div class="offer' + (o.isSale ? " offer--sale" : "") + '" data-offer="' + i + '">';
+  html += '<div class="offer__head"><span class="offer__letter">' + letter + "</span>" +
+    '<button type="button" class="offer__brand" data-act="cmp-brand" data-i="' + i + '">' + (o.brand ? esc(o.brand) : "מותג?") + "</button>" +
+    '<label class="check offer__sale"><input type="checkbox" data-c="' + i + '" data-f="isSale"' + (o.isSale ? " checked" : "") + '> מבצע</label>' +
+    '<button type="button" class="offer__x" data-act="cmp-clear-one" data-i="' + i + '" aria-label="נקה הצעה ' + letter + '">✕</button></div>';
+  if (o.brandOpen) html += '<input class="offer__brandin" data-c="' + i + '" data-f="brand" value="' + esc(o.brand) + '" placeholder="מותג / שם" maxlength="40" autocomplete="off">';
+  html += '<div class="offer__line">' +
+    '<span class="seg" role="group" aria-label="כמות אריזות">' + segs + "</span>" +
+    '<input class="offer__size num" data-c="' + i + '" data-f="size" type="number" min="0" step="any" inputmode="decimal" value="' + esc(o.size) + '" placeholder="גודל" aria-label="גודל אריזה" autocomplete="off">' +
+    '<select class="offer__unit" data-c="' + i + '" data-f="unit" aria-label="יחידה">' +
+      Object.keys(UNITS).map(function (u) { return '<option value="' + u + '"' + (o.unit === u ? " selected" : "") + ">" + esc(UNITS[u].label) + "</option>"; }).join("") +
+    "</select>" +
+    '<input class="offer__price num" data-c="' + i + '" data-f="price" type="number" min="0" step="0.01" inputmode="decimal" value="' + esc(o.price) + '" placeholder="₪" aria-label="מחיר" autocomplete="off">' +
+    "</div>";
+  if (o.isSale) html += '<div class="offer__reg"><label>מחיר רגיל</label><input class="num" data-c="' + i + '" data-f="regular" type="number" min="0" step="0.01" inputmode="decimal" value="' + esc(o.regular) + '" placeholder="₪ מהתווית" aria-label="מחיר רגיל" autocomplete="off"></div>';
   return html + "</div>";
 }
-/* Wired once for the life of the page. Re-adding on every visit to the
-   calculator tab stacked duplicate handlers, so each keystroke fired
-   saveCalc() and a verdict re-render N times. */
+
+function viewCompare() {
+  var html = '<div class="panel panel--tight"><div class="panel__head"><span class="panel__title">השווה עכשיו</span>' +
+    '<span class="btn-row">' +
+    (calcCount < 3 ? '<button class="btn btn--sm" id="addOffer">[ + הצעה ]</button>' : "") +
+    '<button class="btn btn--sm" id="clearCalc">[ נקה הכל ]</button></span></div></div>';
+  html += '<div id="verdict">' + verdictHtml() + "</div>";
+  for (var i = 0; i < calcCount; i++) html += offerRow(i);
+  html += '<div id="recall">' + recallHtml() + "</div>";
+  return html;
+}
+
+function verdictHtml() {
+  var v = calcVerdict();
+  if (v.kind === "incomplete") {
+    return '<div class="verdict verdict--none">' + (v.have === 0 ? "הקלד גודל ומחיר לשתי הצעות — התשובה מופיעה תוך כדי." : "עוד הצעה אחת.") + "</div>";
+  }
+  if (v.kind === "mixed") return '<div class="verdict verdict--none">לא ניתן להשוות — מידות שונות (משקל מול נפח מול יחידות).</div>';
+  var bi = v.best.i, bName = offerLabel(calcState[bi], bi);
+  var html = '<div class="verdict verdict--big">';
+  if (v.kind === "tie") {
+    html += '<div class="verdict__hero">תיקו</div><div class="verdict__sub">אותו מחיר ' + esc(v.basis.label) + "</div>";
+  } else {
+    html += '<div class="verdict__hero">' + esc(bName) + ' <span class="verdict__star">★</span></div>' +
+      '<div class="verdict__sub"><span class="num">' + moneyU(v.best.up) + "</span> " + esc(v.basis.label) +
+      ' · <span class="num">' + v.savePct.toFixed(0) + "%</span> זול יותר</div>";
+    if (v.best.isSale) {
+      html += '<div class="verdict__note">במבצע' + (v.best.upRegular != null ? " · רגיל <span class=\"num\">" + moneyU(v.best.upRegular) + "</span> " + esc(v.basis.label) : "") + "</div>";
+      if (v.regularWinner) html += '<div class="verdict__note verdict__note--warn">במחיר רגיל, ' + esc(offerLabel(calcState[v.regularWinner.i], v.regularWinner.i)) + " זולה יותר</div>";
+    }
+  }
+  html += '<div class="verdict__rows">' + v.sorted.map(function (o) {
+    return '<div class="verdict__line"><span>' + esc(offerLabel(calcState[o.i], o.i)) + (o === v.best && v.kind === "ok" ? " ★" : "") + (o.isSale ? ' <span class="badge badge--sale">מבצע</span>' : "") +
+      '</span><span class="num">' + moneyU(o.up) + " " + esc(v.basis.label) + "</span></div>";
+  }).join("") + "</div>";
+  if (v.kind === "ok") html += '<button class="btn btn--go btn--full" data-act="cmp-save" data-i="' + bi + '">[ שמור את ' + esc(bName) + (currentShop() ? " ב" + esc(currentShop()) : "") + " ]</button>";
+  return html + "</div>";
+}
+
+/* ---------- recall: what did this cost elsewhere? ---------- */
+function bestElsewhere(product, excludeShop) {
+  if (!product) return null;
+  var basis = basisOf(product), here = storeKey(excludeShop || "");
+  var regular = null, sale = null, hereLast = null;
+  product.entries.forEach(function (e) {
+    var s = cur(e), up = unitPriceIn(s, basis);
+    if (up == null) return;
+    var row = { shop: e.storeName, up: up, date: s.date, isSale: !!s.isSale };
+    if (storeKey(e.storeName) === here) { if (!hereLast || s.date > hereLast.date) hereLast = row; return; }
+    if (s.isSale) { if (!sale || up < sale.up) sale = row; }
+    else if (!regular || up < regular.up) regular = row;
+  });
+  return { basis: basis, regular: regular, sale: sale, hereLast: hereLast };
+}
+function recallHtml() {
+  var p = compareProductId ? findProduct(compareProductId) : null;
+  var html = '<div class="recall">';
+  if (!p) {
+    return html + '<button class="btn btn--sm" data-act="cmp-attach">[ על איזה מוצר? ]</button>' +
+      '<span class="muted tiny">שייך למוצר כדי לראות מה זה עלה בחנויות אחרות.</span></div>';
+  }
+  var r = bestElsewhere(p, currentShop());
+  html += '<div class="recall__head"><span>' + esc(p.name) + '</span><button class="btn btn--sm" data-act="cmp-attach">[ החלף ]</button></div>';
+  if (r.regular) html += '<div class="verdict__line"><span>הזול ביותר במקום אחר · ' + esc(r.regular.shop) + '</span><span class="num">' + moneyU(r.regular.up) + " " + esc(r.basis.label) + ' <span class="muted">· ' + esc(ageLabel(r.regular.date)) + "</span></span></div>";
+  if (r.sale) html += '<div class="verdict__line"><span>' + (r.regular ? "" : "במקום אחר · ") + esc(r.sale.shop) + ' <span class="badge badge--sale">מבצע</span></span><span class="num">' + moneyU(r.sale.up) + " " + esc(r.basis.label) + ' <span class="muted">· ' + esc(ageLabel(r.sale.date)) + "</span></span></div>";
+  if (r.hereLast) html += '<div class="verdict__line"><span>כאן בפעם הקודמת' + (r.hereLast.isSale ? ' <span class="badge badge--sale">מבצע</span>' : "") + '</span><span class="num">' + moneyU(r.hereLast.up) + " " + esc(r.basis.label) + ' <span class="muted">· ' + esc(ageLabel(r.hereLast.date)) + "</span></span></div>";
+  if (!r.regular && !r.sale && !r.hereLast) html += '<p class="muted tiny" style="margin:0">אין עדיין מחירים מדודים למוצר הזה. שמור את ההצעה הזולה — ובביקור הבא תדע.</p>';
+  return html + "</div>";
+}
+
+/* ---------- wiring ---------- */
 document.addEventListener("input", calcInput);
 document.addEventListener("change", calcInput);
-
-function wireCalc() {
+function wireCompare() {
   var add = document.getElementById("addOffer");
   if (add) add.addEventListener("click", function () { calcCount = 3; saveCalc(); render(); });
-  document.getElementById("clearCalc").addEventListener("click", function () {
-    calcState = calcState.map(function () { return { qty: "", size: "", unit: "g", price: "" }; });
-    calcCount = 2; saveCalc(); render();
+  var clr = document.getElementById("clearCalc");
+  if (clr) clr.addEventListener("click", function () {
+    calcState = [blankOffer(), blankOffer(), blankOffer()]; calcCount = 2; compareProductId = null; saveCalc(); render();
   });
 }
 function calcInput(ev) {
   var t = ev.target;
   if (!t || t.dataset.c == null) return;
-  calcState[Number(t.dataset.c)][t.dataset.f] = t.value;
+  var o = calcState[Number(t.dataset.c)];
+  if (t.dataset.f === "isSale") { o.isSale = !!t.checked; saveCalc(); render(); return; }
+  o[t.dataset.f] = t.value;
   saveCalc();
-  var v = document.getElementById("verdict");
-  if (v) v.innerHTML = verdictHtml();
+  var v = document.getElementById("verdict"); if (v) v.innerHTML = verdictHtml();
+  if (t.dataset.f === "brand") { var b = t.closest(".offer").querySelector(".offer__brand"); if (b) b.textContent = t.value.trim() || "מותג?"; }
 }
+function setOfferQty(i, q) { if (!calcState[i]) return; calcState[i].qty = String(q); saveCalc(); render(); }
+function toggleBrand(i) { if (!calcState[i]) return; calcState[i].brandOpen = !calcState[i].brandOpen; render();
+  var inp = document.querySelector('.offer[data-offer="' + i + '"] .offer__brandin'); if (inp) inp.focus(); }
+function clearCalcOffer(i) { if (!calcState[i]) return; calcState[i] = blankOffer(); saveCalc(); render(); }
 
-/* calculator inputs survive a reload, kept out of `state` so they never
-   travel through export/import */
+/* compare inputs survive a reload, kept out of `state` so they never travel through export/import */
 var KEY_CALC = "priceTracker.calc";
-function saveCalc() { lsSet(KEY_CALC, JSON.stringify({ offers: calcState, count: calcCount })); }
+function saveCalc() { lsSet(KEY_CALC, JSON.stringify({ offers: calcState, count: calcCount, product: compareProductId })); }
 function loadCalc() {
   try {
     var c = JSON.parse(lsGet(KEY_CALC) || "null");
     if (!c || !Array.isArray(c.offers)) return;
     for (var i = 0; i < 3; i++) {
-      var o = c.offers[i];
-      if (o) calcState[i] = { qty: String(o.qty || ""), size: String(o.size || ""), unit: UNITS[o.unit] ? o.unit : "g", price: String(o.price || "") };
+      var o = c.offers[i] || {};
+      calcState[i] = { qty: o.qty == null || o.qty === "" ? "1" : String(o.qty), size: String(o.size || ""), unit: UNITS[o.unit] ? o.unit : "g",
+        price: String(o.price || ""), brand: String(o.brand || ""), isSale: !!o.isSale, regular: String(o.regular || ""), brandOpen: false };
     }
     calcCount = c.count === 3 ? 3 : 2;
+    compareProductId = c.product && findProduct(c.product) ? c.product : null;
   } catch (e) {}
 }
 
-function clearCalcOffer(i) {
-  if (!calcState[i]) return;
-  calcState[i] = { qty: "", size: "", unit: "g", price: "" };
-  saveCalc();
-  render();
+/* ---------- attach a product / save the winner ---------- */
+function pickShop(then) {
+  var names = storeNames();
+  var buttons = names.map(function (n) { return { label: (currentShop() === n ? "✓ " : "▸ ") + n, run: function () { setCurrentShop(n); render(); if (then) then(); } }; });
+  buttons.push({ label: "+ חנות חדשה", run: function () {
+    promptText("חנות חדשה", "שם החנות", "", function (v) { return v ? (storeExists(v) ? "כבר קיימת." : null) : "נדרש שם."; }).then(function (name) {
+      if (!name) return; state.stores.push(name); state.stores.sort(); save(); setCurrentShop(name); render(); if (then) then();
+    });
+  } });
+  openSheet("איפה אתה עכשיו?", buttons);
 }
-
-/* ---------- calculator ↔ catalogue ---------- */
-function calcLoadFrom(slot) {
-  var withEntries = state.products.filter(function (p) { return p.entries.length; });
-  if (!withEntries.length) { say("אין מוצרים עם מחירים במאגר."); return; }
-  openSheet("טען מהמאגר · הצעה " + ["A", "B", "C"][slot], withEntries.map(function (p) {
-    return { label: "▸ " + p.name, run: function () { pickEntryFor(p, slot); } };
-  }));
+function pickProductForCompare(then) {
+  var buttons = [{ label: "+ מוצר חדש", run: function () {
+    promptText("מוצר חדש", "שם המוצר", "", function (v) { return v ? (productNameTaken(v) ? "כבר קיים מוצר בשם הזה." : null) : "נדרש שם."; }).then(function (name) {
+      if (!name) return;
+      var o = calcState[0], unit = UNITS[o.unit] ? o.unit : "g";
+      var p = { id: uid("p"), name: name, category: "", defaultUnit: unit, notes: "", needed: false, entries: [] };
+      state.products.unshift(p); save(); compareProductId = p.id; saveCalc(); render(); if (then) then(p);
+    });
+  } }];
+  state.products.forEach(function (p) {
+    buttons.push({ label: (compareProductId === p.id ? "✓ " : "▸ ") + p.name, run: function () { compareProductId = p.id; saveCalc(); render(); if (then) then(p); } });
+  });
+  openSheet("על איזה מוצר?", buttons);
 }
-function pickEntryFor(product, slot) {
-  openSheet(product.name, product.entries.map(function (e) {
-    var s = cur(e);
-    return {
-      label: e.storeName + " · " + packLabel(s) + " · " + money(s.price),
-      run: function () {
-        calcState[slot] = {
-          qty: s.qty != null ? String(s.qty) : "",
-          size: s.size != null ? String(s.size) : "",
-          unit: s.unit || product.defaultUnit || "g",
-          price: String(s.price)
-        };
-        saveCalc();
-        setScreen("calc");
-      }
-    };
-  }));
-}
-function calcSaveAsEntry(slot) {
-  var o = calcState[slot];
+function saveWinner(i) {
+  var o = calcOffer(i);
   if (!o) return;
-  var list = state.products;
-  if (!list.length) { say("אין מוצרים במאגר. צור מוצר קודם."); return; }
-  openSheet("שמור כמחיר אצל:", list.map(function (p) {
-    return { label: "▸ " + p.name, run: function () {
-      promptText("שם החנות", "חנות", "", function (v) { return v ? null : "נדרש שם חנות."; }).then(function (store) {
-        if (!store) return;
-        var qty = num(o.qty), size = num(o.size), price = num(o.price);
-        p.entries.push({
-          id: uid("e"), storeName: store, note: "מהמחשבון",
-          history: [{
-            qty: isFinite(qty) && qty > 0 ? qty : null,
-            size: isFinite(size) && size > 0 ? size : null,
-            unit: isFinite(qty) && qty > 0 ? o.unit : null,
-            price: price, isSale: false, date: todayISO()
-          }]
-        });
-        save();
-        say("נשמר אצל “" + p.name + "” · " + store);
-      });
-    } };
-  }));
+  if (!currentShop()) { pickShop(function () { saveWinner(i); }); return; }
+  if (!compareProductId) { pickProductForCompare(function () { saveWinner(i); }); return; }
+  var p = findProduct(compareProductId); if (!p) { compareProductId = null; saveCalc(); render(); return; }
+  var snap = { qty: o.qty, size: o.size, unit: o.unit, price: o.price, isSale: o.isSale, date: todayISO(), regularPrice: o.regular };
+  snapshotForUndo("נשמר: " + offerLabel(calcState[i], i) + " → " + p.name);
+  p.entries.push({ id: uid("e"), storeName: currentShop(), note: o.brand || "", history: [snap] });
+  adoptBasis(p, snap);
+  save(); render();
 }
 
 /* ---------- data ---------- */
@@ -2393,6 +2511,8 @@ function openEntry(mode, product, entry) {
   document.getElementById("eUnit").value = s && s.unit ? s.unit : (product.defaultUnit === "kg" ? "kg" : product.defaultUnit === "l" ? "l" : product.defaultUnit);
   document.getElementById("ePrice").value = s && mode !== "update" ? s.price : "";
   document.getElementById("eSale").checked = !!(s && mode !== "update" && s.isSale);
+  document.getElementById("eRegular").value = s && mode !== "update" && s.regularPrice != null ? s.regularPrice : "";
+  document.getElementById("eRegWrap").hidden = !document.getElementById("eSale").checked;
   document.getElementById("eDate").value = mode === "update" || !s ? todayISO() : s.date;
   document.getElementById("eNote").value = entry ? entry.note : "";
   document.getElementById("eErr").textContent = "";
@@ -2421,7 +2541,11 @@ entryForm.addEventListener("submit", function (ev) {
   if ((qty === null) !== (size === null)) { ev.preventDefault(); err.textContent = "מלא גם כמות וגם גודל אריזה, או השאר את שניהם ריקים."; return; }
   if (!date) { ev.preventDefault(); err.textContent = "נדרש תאריך."; return; }
 
-  var snap = { qty: qty, size: size, unit: qty === null ? null : document.getElementById("eUnit").value, price: price, isSale: document.getElementById("eSale").checked, date: date };
+  var isSale = document.getElementById("eSale").checked;
+  var regRaw = document.getElementById("eRegular").value.trim();
+  var regular = isSale && regRaw !== "" ? num(regRaw) : null;
+  if (regular !== null && (!isFinite(regular) || regular <= 0)) { ev.preventDefault(); err.textContent = "מחיר רגיל חייב להיות מספר חיובי."; return; }
+  var snap = { qty: qty, size: size, unit: qty === null ? null : document.getElementById("eUnit").value, price: price, isSale: isSale, date: date, regularPrice: regular };
   var note = document.getElementById("eNote").value.trim();
   var c = entryCtx;
   if (c.mode === "add") {
@@ -2605,14 +2729,14 @@ function doRestore() {
    7b. SANITY TESTS — pure-logic checks, never touch stored data.
    Auto-run once per APP_VERSION; result shown in the נתונים screen.
    ============================================================ */
-var APP_VERSION = "6.7.1";
+var APP_VERSION = "7.0.0";
 var KEY_TESTED = "priceTracker.selftest";
 var testReport = null;
 /* dev tooling is opt-in: ?dev=1 in the URL, or run __selftest() in the console */
 var DEV_MODE = /[?&]dev=1\b/.test(location.search);
 
 function snap(qty, size, unit, price, date, isSale) {
-  return { qty: qty, size: size, unit: unit, price: price, isSale: !!isSale, date: date || "2026-01-01" };
+  return { qty: qty, size: size, unit: unit, price: price, isSale: !!isSale, date: date || "2026-01-01", regularPrice: null };
 }
 function entryOf(store, snaps) { return { id: "t_" + store, storeName: store, note: "", history: snaps }; }
 function near(a, b) { return a != null && Math.abs(a - b) < 0.005; }
@@ -2875,7 +2999,7 @@ function selfTests() {
   });
   t("חנויות — נתוני גרסה 4 משודרגים עם רשימת חנויות ריקה", function () {
     var out = normalizeState({ version: 4, products: [{ name: "מוצר", entries: [entryOf("x", [snap(1, 100, "g", 5)])] }] });
-    return out.version === 5 && Array.isArray(out.stores) && out.stores.length === 0 && out.products.length === 1;
+    return out.version === SCHEMA_VERSION && Array.isArray(out.stores) && out.stores.length === 0 && out.products.length === 1;
   });
   t("בסיס — מוצר מומר מאמץ את המידה הראשונה שנמדדת", function () {
     var p = { id: "x", name: "מומר", category: "", defaultUnit: "unit", notes: "", needed: false,
@@ -2891,6 +3015,36 @@ function selfTests() {
               entries: [entryOf("א", [established])] };
     adoptBasis(p, snap(6, 1, "unit", 12));
     return p.defaultUnit === "kg";
+  });
+  t("סכמה 6 — מעבר מ-5 מוסיף מחיר רגיל ריק לכל רשומה, לפי מפתחות המקור", function () {
+    var v5 = { version: 5, categories: [], stores: [], products: [{ id: "a", name: "x", category: "", defaultUnit: "g", notes: "", needed: false,
+      entries: [{ id: "e", storeName: "ש", note: "", history: [{ qty: 4, size: 98, unit: "g", price: 24.9, isSale: true, date: "2026-07-01" }] }] }] };
+    var out = normalizeState(v5);
+    var h = out.products[0].entries[0].history[0];
+    return out.version === 6 && h.regularPrice === null && h.isSale === true && h.price === 24.9;
+  });
+  t("סכמה 6 — מחיר רגיל נשמר רק אם חיובי", function () {
+    var mk = function (r) { return normalizeState({ version: 6, products: [{ name: "x", entries: [{ storeName: "ש", history: [{ qty: 1, size: 100, unit: "g", price: 10, isSale: true, date: "2026-07-01", regularPrice: r }] }] }] }).products[0].entries[0].history[0].regularPrice; };
+    return mk(12.5) === 12.5 && mk(0) === null && mk(-3) === null && mk("abc") === null && mk(undefined) === null;
+  });
+  t("השווה — כמות ריקה נחשבת 1, כך ששתי הצעות עם גודל ומחיר בלבד נותנות תשובה", function () {
+    var v = withCalc([{ qty: "", size: 500, unit: "g", price: 8 }, { qty: 2, size: 350, unit: "g", price: 10 }], calcVerdict);
+    return v.kind === "ok" && v.best.letter === "B" && near(v.best.up, 10 / 700 * 100);
+  });
+  t("השווה — מבצע מנצח בפועל, אבל במחיר רגיל השני זול יותר — נאמר", function () {
+    var v = withCalc([{ qty: 1, size: 100, unit: "g", price: 8, isSale: true, regular: 12 }, { qty: 1, size: 100, unit: "g", price: 10 }], calcVerdict);
+    return v.kind === "ok" && v.best.letter === "A" && v.regularWinner && v.regularWinner.letter === "B";
+  });
+  t("זיכרון — הזול במקום אחר מעדיף מחיר רגיל על מבצע, ומציין מבצע בנפרד", function () {
+    var p = { id: "p", name: "טונה", category: "", defaultUnit: "g", notes: "", needed: false, entries: [
+      entryOf("רמי לוי", [snap(4, 98, "g", 24.9, "2026-07-01")]),
+      entryOf("שופרסל", [(function () { var x = snap(8, 98, "g", 30, "2026-07-10", true); x.regularPrice = 44; return x; })()]),
+      entryOf("קרפור", [snap(4, 98, "g", 26, "2026-07-05")]) ] };
+    var r = bestElsewhere(p, "קרפור");
+    return r.regular && r.regular.shop === "רמי לוי" && r.sale && r.sale.shop === "שופרסל" && r.hereLast && r.hereLast.shop === "קרפור";
+  });
+  t("חנות נוכחית — מחוץ ל-state, לא מיוצאת", function () {
+    return JSON.stringify(state).indexOf("priceTracker.shop") === -1 && typeof currentShop() === "string";
   });
   t("צילום — JSON תקין מ-Claude נקרא במלואו", function () {
     var r = parseProductPaste('{"name":"טונה","category":"שימורים","qty":4,"size":98,"unit":"g","note":"סטארקיסט"}');
@@ -3009,8 +3163,8 @@ function selfTests() {
 /* run calcVerdict against temporary offers without disturbing the user's inputs */
 function withCalc(offers, fn) {
   var savedState = calcState, savedCount = calcCount;
-  calcState = offers.map(function (o) { return { qty: String(o.qty), size: String(o.size), unit: o.unit, price: String(o.price) }; });
-  while (calcState.length < 3) calcState.push({ qty: "", size: "", unit: "g", price: "" });
+  calcState = offers.map(function (o) { return { qty: o.qty == null ? "1" : String(o.qty), size: String(o.size), unit: o.unit, price: String(o.price), brand: o.brand || "", isSale: !!o.isSale, regular: o.regular == null ? "" : String(o.regular), brandOpen: false }; });
+  while (calcState.length < 3) calcState.push(blankOffer());
   calcCount = offers.length;
   try { return fn(); }
   finally { calcState = savedState; calcCount = savedCount; }
@@ -3070,9 +3224,12 @@ document.addEventListener("click", function (ev) {
     openEntry("edit", fp, findEntry(fp, act.dataset.e));
   }
   else if (a === "paste-open") { openPasteDialog(); }
-  else if (a === "calc-load") { calcLoadFrom(Number(act.dataset.i)); }
-  else if (a === "calc-clear-one") { clearCalcOffer(Number(act.dataset.i)); }
-  else if (a === "calc-save") { calcSaveAsEntry(Number(act.dataset.i)); }
+  else if (a === "cmp-qty") { setOfferQty(Number(act.dataset.i), Number(act.dataset.q)); }
+  else if (a === "cmp-brand") { toggleBrand(Number(act.dataset.i)); }
+  else if (a === "cmp-clear-one") { clearCalcOffer(Number(act.dataset.i)); }
+  else if (a === "cmp-attach") { pickProductForCompare(); }
+  else if (a === "cmp-save") { saveWinner(Number(act.dataset.i)); }
+  else if (a === "shop-pick") { pickShop(); }
   else if (a === "store-filter") { filter.store = act.dataset.s; filter.cat = ""; setScreen("products"); }
   else if (a === "store-clear") { filter.store = ""; render(); }
   else if (a === "cat-merge") { mergeCategory(act.dataset.c); }
@@ -3089,6 +3246,7 @@ document.addEventListener("click", function (ev) {
   else if (a === "restore") { doRestore(); }
 });
 document.addEventListener("change", function (ev) {
+  if (ev.target.id === "eSale") { var w = document.getElementById("eRegWrap"); if (w) w.hidden = !ev.target.checked; return; }
   if (ev.target.id === "importFile" && ev.target.files && ev.target.files[0]) {
     handleImportFile(ev.target.files[0]); ev.target.value = "";
   }
@@ -3140,7 +3298,8 @@ if (lsGet(KEY_TESTED) !== APP_VERSION) {
   var boot = runSelfTest(true);
   if (boot.failed) storageNote = "בדיקת שפיות נכשלה (" + boot.failed + "/" + boot.total + ") — ראה מסך נתונים.";
 }
-setScreen(location.hash.slice(1) || "products");
+renderShopChip();
+setScreen(location.hash.slice(1) || "compare");
 if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
   try { navigator.serviceWorker.register("./sw.js"); } catch (e) {}
 }
