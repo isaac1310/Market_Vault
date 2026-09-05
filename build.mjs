@@ -31,6 +31,15 @@ writeFileSync(join(OUT, "index.html"), app);
 
 for (const f of ["icon-192.png", "icon-512.png"]) copyFileSync(join(ASSETS, f), join(OUT, f));
 const fonts = readdirSync(join(ASSETS, "fonts")).filter((f) => f.endsWith(".woff2"));
+
+/* Every font the CSS points at must exist. A dangling @font-face does not
+   error — it 404s on every visit and the glyph range silently falls back to a
+   system font. Bold Hebrew shipped that way once; the build refuses it now. */
+const referenced = [...app.matchAll(/url\(\.\/fonts\/([^)]+)\)/g)].map((m) => m[1]);
+const missing = referenced.filter((f) => !fonts.includes(f));
+if (missing.length) throw new Error("@font-face points at fonts that are not in assets/fonts: " + missing.join(", "));
+const unreferenced = fonts.filter((f) => !referenced.includes(f));
+if (unreferenced.length) console.warn("  ! fonts present but unreferenced by any @font-face: " + unreferenced.join(", "));
 for (const f of fonts) copyFileSync(join(ASSETS, "fonts", f), join(OUT, "fonts", f));
 
 writeFileSync(join(OUT, "manifest.webmanifest"), JSON.stringify({
